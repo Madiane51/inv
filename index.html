@@ -3,415 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Invitation | Samira & Mourad</title>
+    <title>Samira & Mourad — Mariage 2026</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --bg-color: #F7F6F2;
-            --envelope-color: #EBE8E1;
-            --card-color: #FFFFFF;
-            --text-dark: #1C1C1C;
-            --text-light: #6A6A6A;
-            --accent-color: #BBA58F; /* Champagne subtil */
-            --ease-premium: cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        /* Reset & Base */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body, html {
-            width: 100%; height: 100%;
-            background-color: var(--bg-color);
-            color: var(--text-dark);
-            font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Empêche le scroll global */
-            -webkit-font-smoothing: antialiased;
-        }
-
-        h1, h2, h3, .serif { font-family: 'Cormorant Garamond', serif; font-weight: 400; }
-
-        /* Utilitaires */
-        .hidden { display: none !important; }
-        .fade-out { opacity: 0; pointer-events: none; transition: opacity 0.8s var(--ease-premium); }
-        .fade-in { opacity: 1 !important; pointer-events: auto !important; }
-
-        /* --- VUE 1 : L'ENVELOPPE --- */
-        #envelope-view {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 10; transition: transform 1s var(--ease-premium), opacity 0.8s var(--ease-premium);
-            perspective: 1000px;
-        }
-
-        .envelope-wrapper {
-            position: relative; width: 320px; height: 220px;
-            cursor: pointer; transition: transform 0.4s var(--ease-premium);
-        }
-        
-        .envelope-wrapper:active { transform: scale(0.98); }
-
-        /* Composants de l'enveloppe */
-        .env-back, .env-front, .env-flap, .env-card-preview {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            border-radius: 4px;
-        }
-
-        .env-back { background: #E0DCD3; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
-
-        /* Carte qui sort de l'enveloppe */
-        .env-card-preview {
-            background: var(--card-color); height: 200px; top: 10px; left: 10px; width: 300px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05); display: flex; justify-content: center; align-items: center;
-            transition: transform 0.8s var(--ease-premium); z-index: 2;
-        }
-
-        .env-card-preview h2 { font-size: 1.5rem; color: var(--accent-color); }
-
-        /* Rabat supérieur */
-        .env-flap {
-            background: var(--envelope-color); z-index: 4;
-            clip-path: polygon(0 0, 50% 55%, 100% 0);
-            transform-origin: top; transition: transform 0.8s var(--ease-premium);
-            /* Ajout d'une ombre subtile via filtre */
-            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.05));
-        }
-
-        /* Face avant */
-        .env-front {
-            background: var(--envelope-color); z-index: 3;
-            clip-path: polygon(0 100%, 0 0, 50% 50%, 100% 0, 100% 100%);
-            display: flex; justify-content: center; align-items: flex-end; padding-bottom: 2rem;
-        }
-
-        .guest-name-badge {
-            background: rgba(255,255,255,0.7); padding: 8px 24px; border-radius: 20px;
-            font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase;
-            backdrop-filter: blur(4px); box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .instruction {
-            position: absolute; bottom: 15%; font-size: 0.8rem; color: var(--text-light);
-            letter-spacing: 2px; text-transform: uppercase; animation: pulse 2s infinite;
-        }
-
-        /* Animations d'ouverture */
-        .envelope-wrapper.is-open .env-flap { transform: rotateX(180deg); z-index: 1; }
-        .envelope-wrapper.is-open .env-card-preview { transform: translateY(-80px); }
-
-        /* --- VUE 2 : L'INVITATION (SLIDER) --- */
-        #card-view {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0; pointer-events: none; transition: opacity 1s var(--ease-premium) 0.3s;
-            z-index: 5; background: var(--bg-color);
-            display: flex; flex-direction: column;
-        }
-
-        /* Scroll horizontal natif optimisé */
-        .slider {
-            display: flex; width: 100%; height: 100%; overflow-x: auto; overflow-y: hidden;
-            scroll-snap-type: x mandatory; scroll-behavior: smooth;
-            -ms-overflow-style: none; scrollbar-width: none; /* Cache scrollbar */
-        }
-        .slider::-webkit-scrollbar { display: none; }
-
-        .slide {
-            min-width: 100vw; height: 100%; padding: 3rem 1.5rem 6rem 1.5rem;
-            scroll-snap-align: start; display: flex; flex-direction: column; align-items: center;
-            overflow-y: auto; /* Permet le scroll vertical interne */
-        }
-
-        .card-content {
-            background: var(--card-color); width: 100%; max-width: 400px; margin: auto;
-            border-radius: 8px; box-shadow: 0 20px 50px rgba(0,0,0,0.06);
-            padding: 3rem 2rem; text-align: center; position: relative;
-        }
-
-        /* Typographie de la carte */
-        .names { font-size: 2.8rem; line-height: 1.1; margin-bottom: 1rem; color: var(--text-dark); }
-        .date { font-size: 1rem; letter-spacing: 3px; text-transform: uppercase; color: var(--accent-color); margin-bottom: 2rem; }
-        .body-text { font-size: 0.95rem; line-height: 1.6; color: var(--text-light); margin-bottom: 2rem; }
-        
-        /* Boutons Premium */
-        .btn {
-            display: block; width: 100%; padding: 14px; margin-bottom: 12px;
-            border: 1px solid var(--text-dark); background: transparent; color: var(--text-dark);
-            text-transform: uppercase; letter-spacing: 1.5px; font-size: 0.75rem;
-            cursor: pointer; border-radius: 4px; transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        .btn.primary { background: var(--text-dark); color: #FFF; border: none; }
-        .btn:active { transform: scale(0.98); }
-
-        /* UI Formulaire RSVP */
-        .form-group { margin-bottom: 1.5rem; text-align: left; }
-        label { display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); margin-bottom: 8px; }
-        input[type="text"], input[type="number"], textarea {
-            width: 100%; padding: 10px 0; border: none; border-bottom: 1px solid #CCC;
-            background: transparent; font-family: 'Inter', sans-serif; font-size: 1rem;
-            outline: none; transition: border-color 0.3s ease;
-        }
-        input:focus, textarea:focus { border-bottom-color: var(--text-dark); }
-        
-        .radio-group { display: flex; gap: 1rem; margin-bottom: 2rem; }
-        .radio-btn {
-            flex: 1; text-align: center; padding: 12px; border: 1px solid #CCC;
-            border-radius: 4px; cursor: pointer; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;
-            transition: all 0.3s ease;
-        }
-        .radio-btn.selected { border-color: var(--text-dark); background: var(--text-dark); color: #FFF; }
-
-        /* Indicateurs de pagination */
-        .pagination {
-            position: absolute; bottom: 2rem; left: 0; width: 100%;
-            display: flex; justify-content: center; gap: 8px; z-index: 10;
-        }
-        .dot { width: 6px; height: 6px; border-radius: 50%; background: #CCC; transition: all 0.3s ease; }
-        .dot.active { background: var(--text-dark); transform: scale(1.3); }
-
-        /* Modale JSON (Simulation) */
-        #json-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(247,246,242,0.95); backdrop-filter: blur(10px);
-            z-index: 100; display: flex; justify-content: center; align-items: center; padding: 2rem;
-            opacity: 0; pointer-events: none; transition: opacity 0.5s var(--ease-premium);
-        }
-        #json-modal.show { opacity: 1; pointer-events: auto; }
-        .modal-content { background: #FFF; padding: 2rem; border-radius: 8px; width: 100%; max-width: 400px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
-        pre { background: #F5F5F5; padding: 1rem; border-radius: 4px; font-size: 0.75rem; overflow-x: auto; margin: 1rem 0; }
-
-        /* Animations */
-        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-        @media (prefers-reduced-motion: reduce) {
-            * { animation: none !important; transition: none !important; }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <div id="envelope-view">
-        <div class="envelope-wrapper" id="envelope" aria-label="Ouvrir l'invitation" role="button" tabindex="0">
-            <div class="env-back"></div>
-            <div class="env-card-preview"><h2 class="serif">S & M</h2></div>
-            <div class="env-flap"></div>
-            <div class="env-front">
-                <div class="guest-name-badge" id="guest-name">Pour vous</div>
-            </div>
-        </div>
-        <div class="instruction">Touchez pour ouvrir</div>
-    </div>
-
-    <div id="card-view">
-        <div class="slider" id="slider">
-            
-            <div class="slide">
-                <div class="card-content">
-                    <div class="date">25 Avril 2026</div>
-                    <h1 class="names">Samira <br><span style="font-size: 1.5rem; font-style: italic;">&</span> Mourad</h1>
-                    <p class="body-text">
-                        Nous avons l'immense joie de vous convier à la célébration de notre mariage.<br><br>
-                        Une journée placée sous le signe de l'amour, entourés des personnes qui nous sont chères.
-                    </p>
-                    <p style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; margin-top: 2rem;">Glissez pour les détails →</p>
-                </div>
-            </div>
-
-            <div class="slide">
-                <div class="card-content">
-                    <h2 class="serif" style="font-size: 2rem; margin-bottom: 1.5rem;">Célébration</h2>
-                    <p class="body-text">
-                        <strong>Cérémonie & Réception</strong><br>
-                        À partir de 16h00<br>
-                        Domaine Les Crayères<br>
-                        Reims, France
-                    </p>
+    <div id="intro-overlay">
+        <div class="intro-bg-pattern"></div>
+        <div id="particles-container"></div> <div class="envelope-scene">
+            <div class="envelope-card" id="envelope-card">
+                <div class="envelope-front">
+                    <div class="env-border-outer"></div>
+                    <div class="env-border-inner"></div>
+                    <div class="env-flap-shadow"></div>
+                    <div class="env-fold-line"></div>
                     
-                    <div style="margin-top: 2rem;">
-                        <button class="btn primary" onclick="addToCalendar()">Ajouter au calendrier</button>
-                        <a href="https://maps.google.com/?q=Domaine+Les+Crayeres,+Reims,+France" target="_blank" class="btn">Ouvrir dans Maps</a>
-                        <button class="btn" onclick="shareInvite()" id="btn-share">Partager l'invitation</button>
+                    <div class="stamp-container">
+                        <div class="stamp">
+                            <div class="stamp-inner">
+                                <div class="stamp-border"></div>
+                                <span>S</span>
+                                <span class="stamp-dash">—</span>
+                                <span>M</span>
+                                <span class="stamp-year">2026</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="corner top-left"><svg viewBox="0 0 16 16"><path d="M1 1 L8 1 M1 1 L1 8" stroke="#c9a84c"/><circle cx="1" cy="1" r="1" fill="#c9a84c"/></svg></div>
+                    <div class="corner top-right"><svg viewBox="0 0 16 16"><path d="M1 1 L8 1 M1 1 L1 8" stroke="#c9a84c"/><circle cx="1" cy="1" r="1" fill="#c9a84c"/></svg></div>
+                    <div class="corner bottom-left"><svg viewBox="0 0 16 16"><path d="M1 1 L8 1 M1 1 L1 8" stroke="#c9a84c"/><circle cx="1" cy="1" r="1" fill="#c9a84c"/></svg></div>
+                    <div class="corner bottom-right"><svg viewBox="0 0 16 16"><path d="M1 1 L8 1 M1 1 L1 8" stroke="#c9a84c"/><circle cx="1" cy="1" r="1" fill="#c9a84c"/></svg></div>
+
+                    <div class="env-text-center">
+                        <p class="arabic-title pulse-anim">مرحبا بكم</p>
+                        <div class="gold-divider mt-10"></div>
+                    </div>
+
+                    <div class="postal-mark">AVRIL<br>2026</div>
+                </div>
+                
+                <div class="envelope-back">
+                    <div class="env-body-back"></div>
+                    <div class="envelope-flap" id="envelope-flap">
+                        <div class="flap-inner"></div>
+                    </div>
+                    <div class="env-lines">
+                        <div class="line-1"></div>
+                        <div class="line-2"></div>
                     </div>
                 </div>
             </div>
+            <div class="envelope-shadow" id="envelope-shadow"></div>
+        </div>
 
-            <div class="slide">
-                <div class="card-content">
-                    <h2 class="serif" style="font-size: 2rem; margin-bottom: 1.5rem;">Présence</h2>
-                    <p class="body-text" style="font-size: 0.8rem;">Veuillez nous confirmer votre présence avant le 1er mars 2026.</p>
-                    
-                    <form id="rsvp-form">
-                        <div class="radio-group">
-                            <div class="radio-btn selected" id="btn-oui" onclick="toggleRsvp(true)">Je viens</div>
-                            <div class="radio-btn" id="btn-non" onclick="toggleRsvp(false)">Je ne viens pas</div>
-                        </div>
+        <div class="hint-text" id="hint-text">✦ Appuyez pour ouvrir ✦</div>
+    </div>
 
-                        <div id="extra-fields">
-                            <div class="form-group">
-                                <label for="guests">Nombre de personnes</label>
-                                <input type="number" id="guests" min="1" max="10" value="1">
-                            </div>
-                            <div class="form-group">
-                                <label for="allergies">Allergies / Régime</label>
-                                <input type="text" id="allergies" placeholder="Ex: Végétarien, sans gluten...">
-                            </div>
-                        </div>
+    <main id="slides-container">
+        
+        <section class="slide moroccan-pattern slide-1">
+            <div class="slide-overlay-gradient"></div>
+            <div class="content-wrapper">
+                <div class="fade-up delay-1">
+                    <svg width="120" height="40" viewBox="0 0 120 40" fill="none" class="gold-ornament-top">
+                        <line x1="0" y1="20" x2="45" y2="20" stroke="url(#g1)" stroke-width="0.5" />
+                        <polygon points="55,10 60,20 55,30 50,20" fill="none" stroke="#c9a84c" stroke-width="0.8" opacity="0.6" />
+                        <circle cx="60" cy="20" r="3" fill="#c9a84c" opacity="0.5" />
+                        <polygon points="65,10 70,20 65,30 60,20" fill="none" stroke="#c9a84c" stroke-width="0.8" opacity="0.4" />
+                        <line x1="75" y1="20" x2="120" y2="20" stroke="url(#g2)" stroke-width="0.5" />
+                        <defs>
+                            <linearGradient id="g1"><stop offset="0%" stop-color="#c9a84c" stop-opacity="0"/><stop offset="100%" stop-color="#c9a84c" stop-opacity="0.6"/></linearGradient>
+                            <linearGradient id="g2"><stop offset="0%" stop-color="#c9a84c" stop-opacity="0.6"/><stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/></linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <p class="fade-up delay-2 subtitle-top">Invitation au mariage de</p>
+                <h1 class="fade-up delay-3 names-title">
+                    <span class="name">Samira</span>
+                    <span class="ampersand">&</span>
+                    <span class="name">Mourad</span>
+                </h1>
+                <div class="fade-up delay-4 fancy-divider">
+                    <div class="line-left"></div><span>✦</span><div class="line-right"></div>
+                </div>
+                <div class="fade-up delay-5 text-center">
+                    <p class="date-days">Vendredi — Samedi</p>
+                    <p class="date-main">24 & 25 Avril 2026</p>
+                    <p class="date-location">Reims · Bétheny</p>
+                </div>
+                <div class="fade-up delay-6 arrow-down">↓</div>
+            </div>
+        </section>
 
-                        <div class="form-group">
-                            <label for="message">Un petit mot ?</label>
-                            <textarea id="message" rows="2" placeholder="Félicitations !"></textarea>
-                        </div>
+        <section class="slide slide-2">
+            <svg class="henna-bg" viewBox="0 0 300 400" fill="none">
+                <circle cx="150" cy="150" r="120" stroke="#264a26" stroke-width="1" />
+                <circle cx="150" cy="150" r="80" stroke="#264a26" stroke-width="0.5" />
+                <circle cx="150" cy="150" r="40" stroke="#264a26" stroke-width="0.5" />
+                <circle cx="230" cy="150" r="8" stroke="#264a26" stroke-width="0.5" /><circle cx="230" cy="150" r="3" fill="#264a26" />
+                <circle cx="70" cy="150" r="8" stroke="#264a26" stroke-width="0.5" /><circle cx="70" cy="150" r="3" fill="#264a26" />
+                <circle cx="150" cy="70" r="8" stroke="#264a26" stroke-width="0.5" /><circle cx="150" cy="70" r="3" fill="#264a26" />
+                <circle cx="150" cy="230" r="8" stroke="#264a26" stroke-width="0.5" /><circle cx="150" cy="230" r="3" fill="#264a26" />
+            </svg>
 
-                        <button type="submit" class="btn primary" style="margin-top: 1rem;">Confirmer</button>
-                    </form>
+            <div class="content-wrapper text-forest">
+                <div class="fade-up delay-1 badge forest-badge"><span>🌿</span> La soirée Henna</div>
+                <p class="fade-up delay-2 arabic-big">حفل الحناء</p>
+                <div class="fade-up delay-3 fancy-divider gold"><div class="line-left"></div><span>✦</span><div class="line-right"></div></div>
+                <div class="fade-up delay-4 text-center mb-6">
+                    <p class="day-italic">Vendredi</p>
+                    <p class="date-bold">24 Avril 2026</p>
+                </div>
+                <div class="fade-up delay-5 time-box">À partir de 15h00</div>
+                <div class="fade-up delay-6 text-center mb-8">
+                    <p class="address-bold">26 Route de Reims</p>
+                    <p class="address-light">51450 Bétheny</p>
+                </div>
+                <div class="fade-up delay-7">
+                    <a href="https://maps.google.com/?q=26+Route+de+Reims,+51450+Bétheny" target="_blank" class="btn-primary filled-forest">📍 Itinéraire Google Maps</a>
                 </div>
             </div>
+        </section>
 
-        </div>
-        
-        <div class="pagination" id="dots">
-            <div class="dot active"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-        </div>
-    </div>
+        <section class="slide slide-3">
+            <div class="slide-overlay-arch"></div>
+            <svg class="columns-bg" viewBox="0 0 400 200" fill="none" preserveAspectRatio="xMidYMax meet">
+                <g><rect x="40" y="0" width="20" height="200" fill="#c9a84c"/><rect x="35" y="0" width="30" height="10" fill="#c9a84c"/><rect x="35" y="190" width="30" height="10" fill="#c9a84c"/></g>
+                <g><rect x="160" y="0" width="20" height="200" fill="#c9a84c"/><rect x="155" y="0" width="30" height="10" fill="#c9a84c"/><rect x="155" y="190" width="30" height="10" fill="#c9a84c"/></g>
+                <g><rect x="280" y="0" width="20" height="200" fill="#c9a84c"/><rect x="275" y="0" width="30" height="10" fill="#c9a84c"/><rect x="275" y="190" width="30" height="10" fill="#c9a84c"/></g>
+            </svg>
 
-    <div id="json-modal">
-        <div class="modal-content">
-            <h3 class="serif" style="font-size: 1.5rem; margin-bottom: 1rem; text-align: center;">Merci !</h3>
-            <p style="font-size: 0.85rem; color: var(--text-light); text-align: center;">Votre réponse a été enregistrée. Voici le payload généré :</p>
-            <pre id="json-output"></pre>
-            <button class="btn primary" onclick="closeModal()">Fermer</button>
-        </div>
-    </div>
+            <div class="content-wrapper">
+                <div class="fade-up delay-1 badge gold-badge"><span>🏛️</span> Cérémonie civile</div>
+                <p class="fade-up delay-2 arabic-big gold-text">عقد الزواج</p>
+                <div class="fade-up delay-3 fancy-divider"><div class="line-left"></div><span>✦</span><div class="line-right"></div></div>
+                <div class="fade-up delay-4 text-center mb-6">
+                    <p class="huge-time">14<span>h</span></p>
+                    <p class="time-subtitle">Samedi 25 Avril 2026</p>
+                </div>
+                <div class="fade-up delay-5 location-box">
+                    <p class="loc-title">Mairie de Reims</p>
+                    <p class="loc-details">Place de l'Hôtel de Ville<br>51100 Reims</p>
+                </div>
+                <p class="fade-up delay-6 italic-info">Tél. : 03 26 35 30 00 · Mairie historique classée</p>
+                <div class="fade-up delay-7">
+                    <a href="https://maps.google.com/?q=Mairie+de+Reims,+9+Place+de+l'Hôtel+de+Ville,+51100+Reims" target="_blank" class="btn-primary">📍 Voir sur Maps</a>
+                </div>
+            </div>
+        </section>
 
-    <script>
-        // --- 1. PERSONNALISATION URL (?name=) ---
-        const urlParams = new URLSearchParams(window.location.search);
-        const guestName = urlParams.get('name');
-        if (guestName) {
-            document.getElementById('guest-name').innerText = "Pour " + decodeURIComponent(guestName);
-        }
+        <section class="slide slide-4">
+            <div id="fete-particles"></div> <svg class="garland-bg" viewBox="0 0 400 80" fill="none" preserveAspectRatio="none">
+                <path d="M0 0 Q50 60 100 20 Q150 60 200 20 Q250 60 300 20 Q350 60 400 20" stroke="rgba(201,168,76,0.2)" stroke-width="1"/>
+                <circle cx="50" cy="42" r="4" fill="rgba(201,168,76,0.3)"/><circle cx="150" cy="42" r="4" fill="rgba(201,168,76,0.3)"/><circle cx="250" cy="42" r="4" fill="rgba(201,168,76,0.3)"/>
+            </svg>
 
-        // --- 2. LOGIQUE ENVELOPPE ---
-        const envelope = document.getElementById('envelope');
-        const envelopeView = document.getElementById('envelope-view');
-        const cardView = document.getElementById('card-view');
+            <div class="content-wrapper">
+                <div class="fade-up delay-1 badge gold-badge"><span>✨</span> Grande fête</div>
+                <p class="fade-up delay-2 arabic-big gold-text">حفل الزفاف</p>
+                <div class="fade-up delay-3 fancy-divider"><div class="line-left"></div><span>✦</span><div class="line-right"></div></div>
+                <div class="fade-up delay-4 text-center mb-6">
+                    <p class="time-subtitle">Samedi 25 Avril 2026</p>
+                    <p class="huge-time">18<span>h</span></p>
+                    <p class="italic-info mt-1">Jusqu'au bout de la nuit</p>
+                </div>
+                <div class="fade-up delay-5 location-box light">
+                    <p class="loc-title">Salle des fêtes</p>
+                    <p class="loc-details">26 Route de Reims<br>51450 Bétheny</p>
+                </div>
+                <div class="fade-up delay-6">
+                    <a href="https://maps.google.com/?q=26+Route+de+Reims,+51450+Bétheny" target="_blank" class="btn-primary">📍 Itinéraire</a>
+                </div>
+            </div>
+        </section>
 
-        envelope.addEventListener('click', () => {
-            // Haptique légère si supportée
-            if(navigator.vibrate) navigator.vibrate(50);
-            
-            envelope.classList.add('is-open');
-            
-            // Séquence cinématique
-            setTimeout(() => {
-                envelopeView.style.transform = 'scale(1.5) translateY(-20px)';
-                envelopeView.style.opacity = '0';
-                cardView.classList.add('fade-in');
-                setTimeout(() => {
-                    envelopeView.style.display = 'none';
-                }, 800);
-            }, 800); // Attend que l'enveloppe s'ouvre
-        });
+        <section class="slide slide-5">
+            <div class="content-wrapper full-width">
+                <div class="fade-up text-center mb-8">
+                    <p class="arabic-title-sm gold-text">تأكيد الحضور</p>
+                    <h2 class="form-title">Confirmez votre présence</h2>
+                    <div class="fancy-divider sm"><div class="line-left"></div><span>✦</span><div class="line-right"></div></div>
+                </div>
 
-        // --- 3. LOGIQUE SLIDER & DOTS ---
-        const slider = document.getElementById('slider');
-        const dots = document.querySelectorAll('.dot');
+                <div id="rsvp-success" class="hidden text-center py-12">
+                    <div class="success-icon">✓</div>
+                    <p class="success-title">Merci !</p>
+                    <p class="success-desc">Votre réponse a bien été enregistrée.<br>Nous avons hâte de vous voir !</p>
+                    <p class="arabic-thanks">شكراً جزيلاً ✦</p>
+                </div>
 
-        slider.addEventListener('scroll', () => {
-            // Calcule l'index de la slide actuelle basé sur le scroll horizontal
-            const scrollLeft = slider.scrollLeft;
-            const slideWidth = slider.clientWidth;
-            const activeIndex = Math.round(scrollLeft / slideWidth);
+                <form id="rsvp-form" class="fade-up delay-2" novalidate>
+                    <div class="input-group">
+                        <label>Nom complet *</label>
+                        <input type="text" id="nom" class="form-input" placeholder="Prénom Nom" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Téléphone *</label>
+                        <input type="tel" id="tel" class="form-input" placeholder="+33 6 00 00 00 00" required>
+                    </div>
 
-            dots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === activeIndex);
-            });
-        });
+                    <div class="form-divider"></div>
 
-        // --- 4. LOGIQUE RSVP ---
-        let isAttending = true;
-        const btnOui = document.getElementById('btn-oui');
-        const btnNon = document.getElementById('btn-non');
-        const extraFields = document.getElementById('extra-fields');
+                    <p class="section-label">Votre présence</p>
+                    
+                    <div class="toggle-group">
+                        <label class="toggle-label">🌿 Soirée Henna — Ven. 24 Avril, 15h</label>
+                        <div class="btn-toggles" data-target="henna">
+                            <button type="button" class="btn-toggle" data-val="oui">Oui ✓</button>
+                            <button type="button" class="btn-toggle" data-val="non">Non ✗</button>
+                        </div>
+                    </div>
+                    <div class="toggle-group">
+                        <label class="toggle-label">🏛️ Cérémonie Mairie — Sam. 25 Avril, 14h</label>
+                        <div class="btn-toggles" data-target="mairie">
+                            <button type="button" class="btn-toggle" data-val="oui">Oui ✓</button>
+                            <button type="button" class="btn-toggle" data-val="non">Non ✗</button>
+                        </div>
+                    </div>
+                    <div class="toggle-group">
+                        <label class="toggle-label">✨ Grande Fête — Sam. 25 Avril, 18h</label>
+                        <div class="btn-toggles" data-target="fete">
+                            <button type="button" class="btn-toggle" data-val="oui">Oui ✓</button>
+                            <button type="button" class="btn-toggle" data-val="non">Non ✗</button>
+                        </div>
+                    </div>
 
-        function toggleRsvp(status) {
-            isAttending = status;
-            if(status) {
-                btnOui.classList.add('selected');
-                btnNon.classList.remove('selected');
-                extraFields.style.display = 'block';
-            } else {
-                btnOui.classList.remove('selected');
-                btnNon.classList.add('selected');
-                extraFields.style.display = 'none';
-            }
-        }
+                    <div class="form-divider"></div>
 
-        document.getElementById('rsvp-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const payload = {
-                guestName: guestName || "Anonyme",
-                attending: isAttending,
-                guestsCount: isAttending ? document.getElementById('guests').value : 0,
-                allergies: isAttending ? document.getElementById('allergies').value : "",
-                message: document.getElementById('message').value,
-                timestamp: new Date().toISOString()
-            };
+                    <p class="section-label">Nombre de personnes</p>
+                    <div class="flex-row">
+                        <div class="input-group half">
+                            <label>Adultes *</label>
+                            <input type="number" id="adultes" class="form-input text-center" value="1" min="1" required>
+                        </div>
+                        <div class="input-group half">
+                            <label>Enfants</label>
+                            <input type="number" id="enfants" class="form-input text-center" value="0" min="0">
+                        </div>
+                    </div>
 
-            document.getElementById('json-output').innerText = JSON.stringify(payload, null, 2);
-            document.getElementById('json-modal').classList.add('show');
-        });
+                    <div class="input-group">
+                        <label>Message (optionnel)</label>
+                        <textarea id="message" class="form-input" rows="3" placeholder="Un message pour les mariés..."></textarea>
+                    </div>
 
-        function closeModal() {
-            document.getElementById('json-modal').classList.remove('show');
-        }
+                    <p id="form-error" class="error-text hidden">Veuillez remplir tous les champs obligatoires correctement.</p>
 
-        // --- 5. AJOUT AU CALENDRIER (.ICS) ---
-        function addToCalendar() {
-            // Date format: YYYYMMDDTHHMMSSZ
-            const icsContent = `BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-DTSTART:20260425T140000Z
-DTEND:20260425T210000Z
-SUMMARY:Mariage Samira & Mourad
-LOCATION:Domaine Les Crayères, Reims, France
-DESCRIPTION:Célébration du mariage de Samira et Mourad.
-END:VEVENT
-END:VCALENDAR`;
+                    <button type="submit" class="btn-primary full-width" id="btn-submit">Confirmer ma présence ✦</button>
+                </form>
+            </div>
+        </section>
+    </main>
 
-            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'mariage_samira_mourad.ics';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }
-
-        // --- 6. PARTAGE WEB API ---
-        function shareInvite() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Mariage Samira & Mourad',
-                    text: "Nous t'invitons à célébrer notre mariage le 25 avril 2026 à Reims.",
-                    url: window.location.href
-                }).catch(console.error);
-            } else {
-                // Fallback si l'API n'est pas supportée (ex: copie dans le presse-papier)
-                navigator.clipboard.writeText(window.location.href);
-                const btn = document.getElementById('btn-share');
-                btn.innerText = "Lien copié !";
-                setTimeout(() => btn.innerText = "Partager l'invitation", 2000);
-            }
-        }
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
